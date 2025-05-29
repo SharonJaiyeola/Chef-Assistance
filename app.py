@@ -1,4 +1,5 @@
 # app.py
+import os
 from flask import Flask, request, jsonify, session
 from flask_cors import CORS
 from openai import OpenAI
@@ -7,7 +8,8 @@ app = Flask(__name__)
 app.secret_key = "chefassistant"
 CORS(app)
 
-client = OpenAI(api_key="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")
+# Use environment variable for API key (set this in Render dashboard)
+client = OpenAI(api_key=os.environ.get("OPENAI_API_KEY"))
 
 @app.route("/chat", methods=["POST"])
 def chat():
@@ -37,3 +39,9 @@ def chat():
     session["chat_history"].append({"role": "assistant", "content": assistant_reply})
 
     return jsonify({"response": assistant_reply})
+
+
+# This is required for Render
+if __name__ == "__main__":
+    port = int(os.environ.get("PORT", 5000))  # Render sets PORT
+    app.run(host="0.0.0.0", port=port)
